@@ -101,9 +101,13 @@ const start = () => {
       }
     } else {
       queue(hash)
-      handleHashChange().then(() => {
-        app._refocus()
-      })
+      handleHashChange()
+        .then(() => {
+          app._refocus()
+        })
+        .catch(e => {
+          console.log(e)
+        })
     }
   }
   if (isFunction(bootRequest)) {
@@ -147,14 +151,22 @@ export const navigate = (url, args = {}, store = true) => {
     setHash(url)
     if (!mustUpdateLocationHash()) {
       forcedHash = url
-      handleHashChange(url).then(() => {
-        app._refocus()
-      })
+      handleHashChange(url)
+        .then(() => {
+          app._refocus()
+        })
+        .catch(e => {
+          console.log(e)
+        })
     }
   } else if (args.reload) {
-    handleHashChange(url).then(() => {
-      app._refocus()
-    })
+    handleHashChange(url)
+      .then(() => {
+        app._refocus()
+      })
+      .catch(e => {
+        console.log(e)
+      })
   }
 }
 
@@ -409,7 +421,11 @@ export const initRouter = config => {
  */
 window.addEventListener('hashchange', async () => {
   if (mustUpdateLocationHash()) {
-    await handleHashChange()
+    try {
+      await handleHashChange()
+    } catch (e) {
+      console.log(e)
+    }
   }
 })
 
