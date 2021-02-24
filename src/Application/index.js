@@ -61,7 +61,7 @@ if (window.innerHeight === 720) {
   defaultOptions.stage['precision'] = 0.6666666667
 }
 
-export default function(App, appData, platformSettings) {
+export default function(App, settings) {
   return class Application extends Lightning.Application {
     constructor(options) {
       const config = Deepmerge(defaultOptions, options)
@@ -86,13 +86,11 @@ export default function(App, appData, platformSettings) {
         .then(() => {
           Metrics.app.loaded()
 
-          AppData = appData
-
           AppInstance = this.stage.c({
             ref: 'App',
             type: App,
             zIndex: 1,
-            forceZIndexContext: !!platformSettings.showVersion || !!platformSettings.showFps,
+            forceZIndexContext: !!settings.showVersion || !!settings.showFps,
           })
 
           this.childList.a(AppInstance)
@@ -100,7 +98,7 @@ export default function(App, appData, platformSettings) {
           Log.info('App version', this.config.version)
           Log.info('SDK version', sdkVersion)
 
-          if (platformSettings.showVersion) {
+          if (settings.showVersion) {
             this.childList.a({
               ref: 'VersionLabel',
               type: VersionLabel,
@@ -110,7 +108,7 @@ export default function(App, appData, platformSettings) {
             })
           }
 
-          if (platformSettings.showFps) {
+          if (settings.showFps) {
             this.childList.a({
               ref: 'FpsCounter',
               type: FpsCounter,

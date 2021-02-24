@@ -18,13 +18,11 @@
  */
 
 import Log from '../Log'
+import { TransportLayer } from '../TransportLayer'
 
-let sendMetric = (type, event, params) => {
+const sendMetric = (type, event, params) => {
   Log.info('Sending metric', type, event, params)
-}
-
-export const initMetrics = config => {
-  sendMetric = config.sendMetric
+  TransportLayer.Metrics.send(type, event, params)
 }
 
 // available metric per category

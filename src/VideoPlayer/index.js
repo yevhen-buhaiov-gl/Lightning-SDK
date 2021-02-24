@@ -26,8 +26,8 @@ import easeExecution from '../helpers/easeExecution'
 import { ApplicationInstance } from '../Launch'
 import Settings from '../Settings'
 import VideoTexture from './VideoTexture'
+import { TransportLayer } from '../TransportLayer'
 
-export let mediaUrl = url => url
 let videoEl
 let videoTexture
 let metrics
@@ -35,12 +35,6 @@ let consumer
 let precision = 1
 let textureMode = false
 let Ads
-
-export const initVideoPlayer = config => {
-  if (config.mediaUrl) {
-    mediaUrl = config.mediaUrl
-  }
-}
 
 // todo: add this in a 'Registry' plugin
 // to be able to always clean this up on app close
@@ -188,7 +182,7 @@ const videoPlayerPlugin = {
     if (!this.canInteract) return
     metrics = Metrics.media(url)
     // prep the media url to play depending on platform
-    url = mediaUrl(url)
+    url = TransportLayer.VideoPlayer.mediaUrl(url)
 
     // if url is same as current clear (which is effectively a reload)
     if (this.src == url) {

@@ -16,61 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Deepmerge from 'deepmerge'
 
-import Settings from '../Settings'
-import { defaultPlatform } from './defaults'
-
-let platform = {}
-
-let getProperty = (namespace, key) => {
-  namespace = namespace.toLowerCase()
-  platform = Deepmerge(defaultPlatform, Settings.get('platform', 'platform', {}), platform)
-
-  return new Promise((resolve, reject) => {
-    if (platform[namespace] && key in platform[namespace]) {
-      resolve(
-        typeof platform[namespace][key] === 'function'
-          ? platform[namespace][key]()
-          : platform[namespace][key]
-      )
-    } else {
-      reject(namespace + '.' + key + ' not found')
-    }
-  })
-}
-
-let setProperty = (namespace, key, params) => {
-  namespace = namespace.toLowerCase()
-
-  platform = Deepmerge(defaultPlatform, Settings.get('platform', 'platform', {}), platform)
-  return new Promise((resolve, reject) => {
-    if (platform[namespace] && key in platform[namespace]) {
-      platform[namespace][key] = params
-      resolve(params)
-    } else {
-      reject(namespace + '.' + key + ' not found')
-    }
-  })
-}
-
-let hasProperty = (namespace, key) => {
-  platform = Deepmerge(defaultPlatform, Settings.get('platform', 'platform', {}), platform)
-  return Promise.resolve(platform[namespace] && key in platform[namespace])
-}
-
-export const initPlatform = config => {
-  getProperty = config.getProperty
-  setProperty = config.setProperty
-  hasProperty = config.hasProperty
-}
+import { TransportLayer } from '../TransportLayer'
 
 const getOrSet = (namespace, key, params) =>
-  typeof params !== 'undefined' ? setProperty(namespace, key, params) : getProperty(namespace, key)
+  typeof params !== 'undefined'
+    ? TransportLayer.Platform.setProperty(namespace, key, params)
+    : TransportLayer.Platform.getProperty(namespace, key)
 
 // public API
 export default {
-  Localization: {
+  localization: {
     city(params) {
       return getOrSet('localization', 'city', params)
     },
@@ -90,12 +46,12 @@ export default {
       return getOrSet('localization', 'locale', params)
     },
   },
-  Profile: {
+  profile: {
     ageRating(params) {
       return getOrSet('profile', 'ageRating', params)
     },
   },
-  Device: {
+  device: {
     ip(params) {
       return getOrSet('device', 'ip', params)
     },
@@ -145,7 +101,7 @@ export default {
       return getOrSet('device', 'network', params)
     },
   },
-  Accessibility: {
+  accessibility: {
     closedCaptions(params) {
       return getOrSet('accessibility', 'closedCaptions', params)
     },
@@ -157,7 +113,7 @@ export default {
     return Array.isArray(namespacedKeyOrKeys)
       ? Promise.all(
           namespacedKeyOrKeys.map(key => {
-            return getProperty.apply(this, key.split('.'))
+            return TransportLayer.Platform.getProperty.apply(this, key.split('.'))
           })
         ).then(values =>
           namespacedKeyOrKeys.reduce((result, key, index) => {
@@ -165,12 +121,12 @@ export default {
             return result
           }, {})
         )
-      : getProperty.apply(this, namespacedKeyOrKeys.split('.'))
+      : TransportLayer.Platform.getProperty.apply(this, namespacedKeyOrKeys.split('.'))
   },
   set(namespacedKey, value) {
-    return setProperty.apply(this, [...namespacedKey.split('.'), ...value])
+    return TransportLayer.Platform.setProperty.apply(this, [...namespacedKey.split('.'), ...value])
   },
   has(namespacedKey) {
-    return hasProperty.apply(this, namespacedKey.split('.'))
+    return TransportLayer.Platform.hasProperty.apply(this, namespacedKey.split('.'))
   },
 }

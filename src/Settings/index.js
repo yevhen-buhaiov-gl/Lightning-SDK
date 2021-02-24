@@ -17,17 +17,10 @@
  * limitations under the License.
  */
 
-const settings = {}
-const subscribers = {}
+let settings = {}
 
-export const initSettings = (appSettings, platformSettings) => {
-  settings['app'] = appSettings
-  settings['platform'] = platformSettings
-  settings['user'] = {}
-}
-
-const publish = (key, value) => {
-  subscribers[key] && subscribers[key].forEach(subscriber => subscriber(value))
+export const initSettings = config => {
+  settings = config
 }
 
 const dotGrab = (obj = {}, key) => {
@@ -39,34 +32,11 @@ const dotGrab = (obj = {}, key) => {
 }
 
 export default {
-  get(type, key, fallback = undefined) {
-    const val = dotGrab(settings[type], key)
+  get(key, fallback = undefined) {
+    const val = dotGrab(settings, key)
     return val !== undefined ? val : fallback
   },
-  has(type, key) {
-    return !!this.get(type, key)
-  },
-  set(key, value) {
-    settings['user'][key] = value
-    publish(key, value)
-  },
-  subscribe(key, callback) {
-    subscribers[key] = subscribers[key] || []
-    subscribers[key].push(callback)
-  },
-  unsubscribe(key, callback) {
-    if (callback) {
-      const index = subscribers[key] && subscribers[key].findIndex(cb => cb === callback)
-      index > -1 && subscribers[key].splice(index, 1)
-    } else {
-      if (key in subscribers) {
-        subscribers[key] = []
-      }
-    }
-  },
-  clearSubscribers() {
-    for (const key of Object.getOwnPropertyNames(subscribers)) {
-      delete subscribers[key]
-    }
+  has(key) {
+    return !!this.get(key)
   },
 }

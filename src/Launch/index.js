@@ -17,51 +17,27 @@
  * limitations under the License.
  */
 
-import { initAdsHandler } from '../Advertising/adsHandler'
-import { initEvents } from '../Events'
-import { initLifecycle } from '../Lifecycle'
-import { initMetrics } from '../Metrics'
-import { initMediaPlayer } from '../MediaPlayer'
-import { initProfile } from '../Profile'
-import { initPlatform } from '../Platform'
-import { initRouter } from '../Router'
 import { initSettings } from '../Settings'
-import { initStorage } from '../Storage'
-import { initTV } from '../TV'
 import { initUtils } from '../Utils'
-import { initVideoPlayer } from '../VideoPlayer'
+import { initTransportLayer } from '../TransportLayer'
 
 import Application from '../Application'
 import isProbablyLightningComponent from '../helpers/isProbablyLightningComponent'
 
 export let ApplicationInstance
 
-export default (App, appSettings, platformSettings, appData) => {
-  initSettings(appSettings, platformSettings)
-  initUtils(platformSettings)
-  initLifecycle((platformSettings.plugins && platformSettings.plugins.events) || {})
-  initStorage()
-
-  // Initialize plugins
-  if (platformSettings.plugins) {
-    platformSettings.plugins.profile && initProfile(platformSettings.plugins.profile)
-    platformSettings.plugins.platform && initPlatform(platformSettings.plugins.platform)
-    platformSettings.plugins.metrics && initMetrics(platformSettings.plugins.metrics)
-    platformSettings.plugins.mediaPlayer && initMediaPlayer(platformSettings.plugins.mediaPlayer)
-    platformSettings.plugins.mediaPlayer && initVideoPlayer(platformSettings.plugins.mediaPlayer)
-    platformSettings.plugins.ads && initAdsHandler(platformSettings.plugins.ads)
-    platformSettings.plugins.router && initRouter(platformSettings.plugins.router)
-    platformSettings.plugins.tv && initTV(platformSettings.plugins.tv)
-    platformSettings.plugins.events && initEvents(platformSettings.plugins.events)
-  }
+export default (App, settings, transportLayer) => {
+  initTransportLayer(transportLayer)
+  initSettings(settings)
+  initUtils(settings)
 
   if (isProbablyLightningComponent(App)) {
-    const app = Application(App, appData, platformSettings)
-    ApplicationInstance = new app(appSettings)
+    const app = Application(App, settings)
+    ApplicationInstance = new app(settings.lightning)
     return ApplicationInstance
   } else {
     if (typeof App === 'function') {
-      return App()
+      return App(settings)
     } else {
       console.error('Expecting `App` to be a callback function or a Lightning Component')
     }

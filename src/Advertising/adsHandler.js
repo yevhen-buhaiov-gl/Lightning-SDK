@@ -18,24 +18,11 @@
  */
 
 import Log from '../Log'
-import { mediaUrl } from '../VideoPlayer'
+import { TransportLayer } from '../TransportLayer'
 
 let consumer
 
-let getAds = () => {
-  // todo: enable some default ads during development, maybe from the settings.json
-  return Promise.resolve({
-    preroll: [],
-    midroll: [],
-    postroll: [],
-  })
-}
-
-export const initAdsHandler = config => {
-  if (config.getAds) {
-    getAds = config.getAds
-  }
-}
+let getAds = () => TransportLayer.Ads.getAds()
 
 const state = {
   active: false,
@@ -58,7 +45,7 @@ const playAd = ad => {
     const videoEl = document.getElementsByTagName('video')[0]
     videoEl.style.display = 'block'
     videoEl.style.visibility = 'visible'
-    videoEl.src = mediaUrl(ad.url)
+    videoEl.src = TransportLayer.VideoPlayer.mediaUrl(ad.url)
     videoEl.load()
 
     let timeEvents = null
