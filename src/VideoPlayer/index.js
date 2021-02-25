@@ -224,25 +224,25 @@ const videoPlayerPlugin = {
     this.hide()
     deregisterEventListeners()
 
-    if (this.src == url) {
-      this.clear().then(this.open(url, details))
-    } else {
-      const adConfig = { enabled: state.adsEnabled, duration: 300 }
-      if (details.videoId) {
-        adConfig.caid = details.videoId
-      }
-      Ads.get(adConfig, consumer).then(ads => {
-        state.playingAds = true
-        ads.prerolls().then(() => {
-          state.playingAds = false
-          loader(url, videoEl).then(() => {
-            registerEventListeners()
-            this.show()
-            this.play()
-          })
+    // if (this.src == url) {
+    //   this.clear().then(this.open(url, details))
+    // } else {
+    const adConfig = { enabled: state.adsEnabled, duration: 300 }
+    if (details.videoId) {
+      adConfig.caid = details.videoId
+    }
+    Ads.get(adConfig, consumer).then(ads => {
+      state.playingAds = true
+      ads.prerolls().then(() => {
+        state.playingAds = false
+        loader(url, videoEl).then(() => {
+          registerEventListeners()
+          this.show()
+          this.play()
         })
       })
-    }
+    })
+    // }
   },
 
   reload() {
